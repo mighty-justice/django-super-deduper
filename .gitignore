@@ -1,0 +1,33 @@
+# python cache
+__pycache__/
+*.py[cod]
+
+# testing
+htmlcov/
+.tox/
+.coverage
+.coveragerc
+.coverage.*
+.cache
+nosetests.xml
+coverage.xml
+*,cover
+coverage
+jest
+.mypy_cache/
+
+# data
+*.csv
+*.tsv
+*.dump
+
+# IDEs & Editors
+.idea/
+.ropeproject/
+*.swp
+
+# environment
+.env*
+
+# OS X
+.DS_STORE
