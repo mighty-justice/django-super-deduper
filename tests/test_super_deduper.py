@@ -5,6 +5,7 @@ from tests.factories import (
     ArticleFactory,
     NewsAgencyFactory,
     PlaceFactory,
+    PublicationFactory,
     ReporterFactory,
     RestaurantFactory,
 )
@@ -30,7 +31,7 @@ class MergedModelInstanceTest(object):
         assert merged_object.address == alias_object.address
         assert merged_object.website == alias_object.website
 
-    def test_merge_model_with_one_to_one_relationship(self):
+    def test_merge_model_with_o2o_relationship(self):
         primary_object = RestaurantFactory.create(place=None, serves_hot_dogs=True, serves_pizza=False)
         alias_object = RestaurantFactory.create(serves_hot_dogs=False, serves_pizza=True)
         alias_address = alias_object.place.address
@@ -42,7 +43,7 @@ class MergedModelInstanceTest(object):
         assert merged_object.place.name == alias_name
         assert merged_object.serves_hot_dogs and not merged_object.serves_pizza
 
-    def test_merge_model_with_one_to_many_relationship(self):
+    def test_merge_model_with_o2m_relationship(self):
         primary_object = NewsAgencyFactory.create()
         alias_object = NewsAgencyFactory.create()
         related_object = ReporterFactory.create(news_agency=alias_object)
@@ -53,7 +54,7 @@ class MergedModelInstanceTest(object):
         related_object.refresh_from_db()
         assert related_object.news_agency == merged_object
 
-    def test_merge_model_with_many_to_many_relationship(self):
+    def test_merge_model_with_m2m_relationship(self):
         primary_object = ArticleFactory.create(reporter=None)
         related_object = ReporterFactory.create()
         alias_object = ArticleFactory.create(number_of_publications=3, reporter=related_object)
@@ -65,6 +66,16 @@ class MergedModelInstanceTest(object):
 
         assert merged_object.reporter == related_object
         assert merged_object.publications.count() == 3
+
+    def test_merge_model_with_reverse_m2m_relationsip(self):
+        primary_object = PublicationFactory.create()
+        alias_object = PublicationFactory.create(number_of_articles=3)
+
+        assert primary_object.article_set.count() == 0
+
+        merged_object = MergedModelInstance.create(primary_object, [alias_object])
+
+        assert merged_object.article_set.count() == 3
 
     def test_merge_different_models(self):
         primary_object = ArticleFactory.create()

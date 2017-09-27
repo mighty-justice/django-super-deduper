@@ -43,6 +43,13 @@ class PublicationFactory(DjangoModelFactory):
     class Meta:
         model = Publication
 
+    @post_generation
+    def number_of_articles(self, create, extracted, **kwargs):
+        if not create or extracted is None or extracted < 1:
+            return
+
+        self.article_set.add(*ArticleFactory.create_batch(extracted))
+
 
 class ArticleFactory(DjangoModelFactory):
     headline = Faker('bs')

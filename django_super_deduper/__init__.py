@@ -62,7 +62,11 @@ class MergedModelInstance(object):
             obj.save()
 
     def _handle_m2m_related_field(self, related_field: Field, alias_object: Model):
-        m2m_accessor_name = related_field.get_attname()
+        try:
+            m2m_accessor_name = related_field.get_attname()
+        except AttributeError:
+            # get_attname does not exist for reverse m2m relations
+            m2m_accessor_name = related_field.get_accessor_name()
 
         for obj in getattr(alias_object, m2m_accessor_name).all():
             logger.debug(f'Removing {obj._meta.model.__name__}[pk={obj.pk}] '
