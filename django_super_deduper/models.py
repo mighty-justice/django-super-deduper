@@ -5,7 +5,7 @@ from django.db.models import Field, Model
 
 class ModelMeta(object):
 
-    def __init__(self, instance: Model):
+    def __init__(self, instance: Model) -> None:
         self.options = instance._meta
 
     @staticmethod

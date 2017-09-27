@@ -12,7 +12,7 @@ logger.addHandler(logging.NullHandler())
 
 class MergedModelInstance(object):
 
-    def __init__(self, primary_object: Model, keep_old=True):
+    def __init__(self, primary_object: Model, keep_old=True) -> None:
         self.primary_object = primary_object
         self.keep_old = keep_old
         self.model_meta = ModelMeta(primary_object)

@@ -1,6 +1,6 @@
 from factory import DjangoModelFactory, Faker, SubFactory, post_generation
 
-from tests.models import Place, NewsAgency, Restaurant, Reporter, Article, Publication
+from tests.models import Article, NewsAgency, Place, Publication, Reporter, Restaurant
 
 
 class PlaceFactory(DjangoModelFactory):
