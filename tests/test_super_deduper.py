@@ -1,6 +1,6 @@
 import pytest
 
-from django_super_deduper import MergedModelInstance
+from django_super_deduper.merge import MergedModelInstance
 from tests.factories import (
     ArticleFactory,
     NewsAgencyFactory,
