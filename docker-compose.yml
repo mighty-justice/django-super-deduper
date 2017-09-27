@@ -4,4 +4,4 @@ services:
     build:
       context: .
     volumes:
-      - .:/app:cached
+      - .:/app

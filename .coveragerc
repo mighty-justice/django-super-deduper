@@ -1,0 +1,8 @@
+[run]
+branch = True
+include = django_super_deduper/*
+
+[report]
+precision = 2
+
+show_missing = True

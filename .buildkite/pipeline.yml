@@ -1,0 +1,57 @@
+env:
+  REVISION: "$BUILDKITE_COMMIT"
+
+steps:
+  - name: ":docker: build django_super_deduper"
+    agents:
+      queue: builders
+    plugins:
+      docker-compose#v1.6.0:
+        build: django_super_deduper
+        config:
+          - docker-compose.yml
+        image-repository: "$BUILDKITE_PLUGIN_DOCKER_COMPOSE_IMAGE_REPOSITORY"
+
+  - wait
+
+  - name: "pytest"
+    command: pytest --cov=./ --cov-report=xml:coverage.xml
+    artifact_paths: "coverage.xml"
+    agents:
+      queue: pytest
+    plugins:
+      docker-compose#v1.6.0:
+        run: app
+        config:
+          - docker-compose.yml
+
+  - name: "mypy"
+    command: mypy django_super_deduper/
+    plugins:
+      docker-compose#v1.6.0:
+        run: app
+        config:
+            - docker-compose.yml
+
+  - name: "isort"
+    command: isort --check-only
+    plugins:
+      docker-compose#v1.6.0:
+        run: app
+        config:
+          - docker-compose.yml
+
+  - name: "flake8"
+    command: flake8
+    plugins:
+      docker-compose#v1.6.0:
+        run: app
+        config:
+          - docker-compose.yml
+
+  - wait
+
+  - name: "coverage"
+    command:
+      - "buildkite-agent artifact download coverage.xml ."
+      - "bash <(curl -s https://codecov.io/bash) -Z -c"

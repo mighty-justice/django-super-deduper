@@ -1,4 +1,6 @@
 # Django Super Deduper
+[![Build status](https://badge.buildkite.com/9895056b294e7f1a8893b9ef75bb743f3933fc3264e23eeeb2.svg)](https://buildkite.com/mighty/django-super-deduper)
+[![codecov](https://codecov.io/gh/mighty-justice/django-super-deduper/branch/master/graph/badge.svg)](https://codecov.io/gh/mighty-justice/django-super-deduper)
 
 A collection of classes and utilities to aid in de-duping Django model instances.
 
