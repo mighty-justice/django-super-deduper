@@ -1,16 +1,27 @@
 from setuptools import find_packages, setup
 
-if __name__ == '__main__':
-    with open('requirements.txt') as requirements:
-        setup(
-            name='django-super-deduper',
-            description='Utilities for deduping Django model instances',
-            url='https://github.com/mighty-justice/django-super-deduper',
-            version='0.0.1',
+try:
+    import pypandoc
+    long_description = pypandoc.convert('README.md', 'rst')
+except ImportError:
+    long_description = open('README.md').read()
 
-            packages=find_packages(exclude=['tests']),
+setup(
+    name='django-super-deduper',
+    description='Utilities for deduping Django model instances',
+    url='https://github.com/mighty-justice/django-super-deduper',
+    long_description=long_description,
+    version='0.0.4',
+    classifiers=[
+        'Framework :: Django :: 1.11',
+        'License :: OSI Approved :: MIT License',
+        'Programming Language :: Python :: 3.6',
+    ],
 
-            install_requires=requirements.readlines(),
+    packages=find_packages(exclude=['tests']),
+    include_package_data=True,
 
-            test_suite='tests',
-        )
+    install_requires=['django>=1.11'],
+
+    test_suite='tests',
+)

@@ -6,7 +6,7 @@ A collection of classes and utilities to aid in de-duping Django model instances
 
 ## Install
 
-`pip install https://github.com/mighty-justice/django-super-deduper/archive/master.zip`
+`pip install django-super-deduper`
 
 ## Usage
 
