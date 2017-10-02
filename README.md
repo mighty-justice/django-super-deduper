@@ -12,9 +12,10 @@ A collection of classes and utilities to aid in de-duping Django model instances
 
 ### Merging Duplicate Instances
 
-By default any empty fields on the primary object will take the value from the duplicates.
+By default any [empty values](https://github.com/django/django/blob/master/django/core/validators.py#L13) on the primary object will take the value from the duplicates.
+Additionally, any related one-to-one, one-to-many, and many-to-many related objects will be updated to reference the primary object.
 
-```
+```python
 > from django_super_deduper.merge import MergedModelInstance
 > primary_object = Model.objects.create(attr_A=None, attr_B='')
 > alias_object_1 = Model.objects.create(attr_A=X)
@@ -29,13 +30,14 @@ Y
 ## Improvements
 
 - Support multiple merging strategies
+- Recursive merging of related one-to-one objects
 
 ## Logging
 
 This package does have some rudimentary logging for debugging purposes.
 Add this snippet to your Django logging settings to enable it:
 
-```
+```python
 LOGGING = {
     'loggers': {
         'django_super_deduper': {
@@ -44,3 +46,8 @@ LOGGING = {
     },
 }
 ```
+
+## References
+
+- https://djangosnippets.org/snippets/2283/
+- https://stackoverflow.com/questions/3393378/django-merging-objects
