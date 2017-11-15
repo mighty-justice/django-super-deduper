@@ -47,8 +47,9 @@ Add this snippet to your Django logging settings to enable it:
 LOGGING = {
     'loggers': {
         'django_super_deduper': {
-        'handlers': ['console'],
-        'level': 'DEBUG',
+            'handlers': ['console'],
+            'level': 'DEBUG',
+        },
     },
 }
 ```
