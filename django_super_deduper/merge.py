@@ -32,8 +32,16 @@ class MergedModelInstance(object):
         return merged_model_instance.primary_object
 
     def _handle_o2m_related_field(self, related_field: Field, alias_object: Model):
-        reverse_o2m_accessor_name = related_field.get_accessor_name()
-        o2m_accessor_name = related_field.field.name
+        try:
+            reverse_o2m_accessor_name = related_field.get_accessor_name()
+        except AttributeError:
+            # get_accessor_name does not exist for <django.contrib.contenttypes.fields.GenericRelation>
+            reverse_o2m_accessor_name = related_field.get_attname()
+
+        try:
+            o2m_accessor_name = related_field.field.name
+        except AttributeError:
+            o2m_accessor_name = related_field.name
 
         for obj in getattr(alias_object, reverse_o2m_accessor_name).all():
             logger.debug(f'Setting o2m field {o2m_accessor_name} on {obj._meta.model.__name__}[pk={obj.pk}] '
