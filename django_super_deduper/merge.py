@@ -1,6 +1,7 @@
 import logging
 from typing import List
 
+from django.core.exceptions import ValidationError
 from django.core.serializers import serialize
 from django.db.models import Field, Model
 
@@ -44,10 +45,24 @@ class MergedModelInstance(object):
         o2m_accessor_name = related_field.field.name
 
         for obj in getattr(alias_object, reverse_o2m_accessor_name).all():
-            logger.debug(f'Setting o2m field {o2m_accessor_name} on {obj._meta.model.__name__}[pk={obj.pk}] '
-                         f'to {self.model_meta.model_name}[pk={self.primary_object.pk}]')
-            setattr(obj, o2m_accessor_name, self.primary_object)
-            obj.save()
+            try:
+                logger.debug(f'Attempting to set o2m field {o2m_accessor_name} on '
+                             f'{obj._meta.model.__name__}[pk={obj.pk}] to '
+                             f'{self.model_meta.model_name}[pk={self.primary_object.pk}] ...')
+                setattr(obj, o2m_accessor_name, self.primary_object)
+                obj.validate_unique()
+                obj.save()
+                logger.debug('success.')
+            except ValidationError as e:
+                logger.debug(f'failed. {e}')
+                if related_field.field.null:
+                    logger.debug(f'Setting o2m field {o2m_accessor_name} on '
+                                 f'{obj._meta.model.__name__}[pk={obj.pk}] to `None`')
+                    setattr(obj, o2m_accessor_name, None)
+                    obj.save()
+                else:
+                    logger.debug(f'Deleting {obj._meta.model.__name__}[pk={obj.pk}]')
+                    obj.delete()
 
     def _handle_m2m_related_field(self, related_field: Field, alias_object: Model):
         try:
@@ -65,6 +80,9 @@ class MergedModelInstance(object):
             getattr(self.primary_object, m2m_accessor_name).add(obj)
 
     def _handle_o2o_related_field(self, related_field: Field, alias_object: Model):
+        if not self.merge_field_values:
+            return
+
         o2o_accessor_name = related_field.name
         primary_o2o_object = getattr(self.primary_object, o2o_accessor_name, None)
         alias_o2o_object = getattr(alias_object, o2o_accessor_name, None)
