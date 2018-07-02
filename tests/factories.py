@@ -1,6 +1,8 @@
-from factory import DjangoModelFactory, Faker, SubFactory, post_generation
+from datetime import date
 
-from tests.models import Article, NewsAgency, Place, Publication, Reporter, Restaurant
+from factory import DjangoModelFactory, Faker, SubFactory, fuzzy, post_generation
+
+from tests.models import Article, EarningsReport, NewsAgency, Place, Publication, Reporter, Restaurant, Waiter
 
 
 class PlaceFactory(DjangoModelFactory):
@@ -18,6 +20,23 @@ class RestaurantFactory(DjangoModelFactory):
 
     class Meta:
         model = Restaurant
+
+
+class WaiterFactory(DjangoModelFactory):
+    restaurant = SubFactory(RestaurantFactory)
+    name = Faker('name')
+
+    class Meta:
+        model = Waiter
+
+
+class EarningsReportFactory(DjangoModelFactory):
+    restaurant = SubFactory(RestaurantFactory)
+    date = fuzzy.FuzzyDate(date(2000, 1, 1))
+    amount = fuzzy.FuzzyDecimal(0, 10000)
+
+    class Meta:
+        model = EarningsReport
 
 
 class NewsAgencyFactory(DjangoModelFactory):

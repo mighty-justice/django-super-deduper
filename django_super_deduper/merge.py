@@ -113,6 +113,7 @@ class MergedModelInstance(object):
                 self._handle_m2m_related_field(related_field, alias_object)
 
         if self.merge_field_values:
+            # This step can lead to validation errors if `field` has a `unique or` `unique_together` constraint.
             for field in model_meta.editable_fields:
                 primary_value = getattr(primary_object, field.name)
                 alias_value = getattr(alias_object, field.name)
