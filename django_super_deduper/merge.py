@@ -101,6 +101,9 @@ class MergedModelInstance(object):
         if not isinstance(alias_object, primary_object.__class__):
             raise TypeError('Only models of the same class can be merged')
 
+        if primary_object.pk == alias_object.pk:
+            raise ValueError('Cannot deduplicate an object on itself')
+
         logger.debug(f'Merging {self.model_meta.model_name}[pk={alias_object.pk}]')
         model_meta = ModelMeta(primary_object)
 
