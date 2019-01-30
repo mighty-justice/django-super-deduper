@@ -36,7 +36,7 @@ class Waiter(models.Model):
 class EarningsReport(models.Model):
     restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
     date = models.DateField()
-    amount = models.DecimalField()
+    amount = models.DecimalField(max_digits=7, decimal_places=2)
 
     class Meta:
         unique_together = ('restaurant', 'date', )
