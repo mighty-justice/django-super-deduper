@@ -1,5 +1,5 @@
 import logging
-from typing import List
+from typing import List, Tuple
 
 from django.core.exceptions import ValidationError
 from django.core.serializers import serialize
@@ -18,16 +18,16 @@ class MergedModelInstance(object):
         self.keep_old = keep_old
         self.merge_field_values = merge_field_values
         self.model_meta = ModelMeta(primary_object)
+        self.modified_related_objects = []  # type: List
 
     @classmethod
-    def create(
+    def _create(
         cls,
         primary_object: Model,
         alias_objects: List[Model],
         keep_old=True,
         merge_field_values=True,
-    ) -> Model:
-
+    ) -> 'MergedModelInstance':
         merged_model_instance = cls(primary_object, keep_old=keep_old, merge_field_values=merge_field_values)
 
         logger.debug(f'Primary object {merged_model_instance.model_meta.model_name}[pk={primary_object.pk}] '
@@ -38,7 +38,16 @@ class MergedModelInstance(object):
         for alias_object in alias_objects:
             merged_model_instance.merge(alias_object)
 
-        return merged_model_instance.primary_object
+        return merged_model_instance
+
+    @classmethod
+    def create(cls, *args, **kwargs) -> Model:
+        return cls._create(*args, **kwargs).primary_object
+
+    @classmethod
+    def create_with_audit_trail(cls, *args, **kwargs) -> Tuple[Model, List[Model]]:
+        instance = cls._create(*args, **kwargs)
+        return instance.primary_object, instance.modified_related_objects
 
     def _handle_o2m_related_field(self, related_field: Field, alias_object: Model):
         reverse_o2m_accessor_name = related_field.get_accessor_name()
@@ -63,6 +72,7 @@ class MergedModelInstance(object):
                 else:
                     logger.debug(f'Deleting {obj._meta.model.__name__}[pk={obj.pk}]')
                     obj.delete()
+            self.modified_related_objects.append(obj)
 
     def _handle_m2m_related_field(self, related_field: Field, alias_object: Model):
         try:
@@ -78,6 +88,7 @@ class MergedModelInstance(object):
             logger.debug(f'Adding {obj._meta.model.__name__}[pk={obj.pk}] '
                          f'to {self.model_meta.model_name}[pk={self.primary_object.pk}].{m2m_accessor_name}')
             getattr(self.primary_object, m2m_accessor_name).add(obj)
+            self.modified_related_objects.append(obj)
 
     def _handle_o2o_related_field(self, related_field: Field, alias_object: Model):
         if not self.merge_field_values:
@@ -94,6 +105,7 @@ class MergedModelInstance(object):
             logger.debug(f'Setting {o2o_accessor_name} on {self.model_meta.model_name}[pk={self.primary_object.pk}] '
                          f'to {alias_o2o_object._meta.model.__name__}[pk={alias_o2o_object.pk}')
             setattr(self.primary_object, o2o_accessor_name, alias_o2o_object)
+            self.modified_related_objects.append(alias_o2o_object)
 
     def merge(self, alias_object: Model):
         primary_object = self.primary_object
