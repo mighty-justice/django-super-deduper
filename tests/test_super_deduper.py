@@ -140,3 +140,10 @@ class MergedModelInstanceTest(object):
 
         assert merged_object.address == alias_object.address
         assert not PlaceFactory._meta.model.objects.filter(pk=alias_object.pk).exists()
+
+    def test_prevent_self_merge(self):
+        primary_object = PlaceFactory.create(address=None)
+        alias_object = primary_object
+
+        with pytest.raises(ValueError):
+            MergedModelInstance.create(primary_object, [alias_object])
