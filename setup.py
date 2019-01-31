@@ -11,7 +11,7 @@ setup(
     description='Utilities for deduping Django model instances',
     url='https://github.com/mighty-justice/django-super-deduper',
     long_description=long_description,
-    version='0.0.5',
+    version='0.0.7',
     classifiers=[
         'Framework :: Django :: 1.11',
         'License :: OSI Approved :: MIT License',

@@ -14,6 +14,7 @@ coverage.xml
 coverage
 jest
 .mypy_cache/
+.pytest_cache/
 
 # data
 *.csv
@@ -39,6 +40,7 @@ dist/
 downloads/
 eggs/
 .eggs/
+env/
 lib/
 lib64/
 parts/

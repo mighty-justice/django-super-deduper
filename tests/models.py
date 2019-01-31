@@ -24,10 +24,25 @@ class Restaurant(models.Model):
 
 class Waiter(models.Model):
     name = models.CharField(max_length=50)
-    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    restaurant = models.ForeignKey(Restaurant, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
         return f'{self.name}'
+
+    class Meta:
+        unique_together = ('name', 'restaurant', )
+
+
+class EarningsReport(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.CASCADE)
+    date = models.DateField()
+    amount = models.DecimalField(max_digits=7, decimal_places=2)
+
+    class Meta:
+        unique_together = ('restaurant', 'date', )
+
+    def __str__(self):
+        return f'{self.restaurant}, {self.date}: {self.amount}'
 
 
 class NewsAgency(Place):
