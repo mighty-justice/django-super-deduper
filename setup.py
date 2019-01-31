@@ -7,11 +7,12 @@ except ImportError:
     long_description = open('README.md').read()
 
 setup(
+    use_scm_version=True,
+    setup_requires=['setuptools_scm'],
     name='django-super-deduper',
     description='Utilities for deduping Django model instances',
     url='https://github.com/mighty-justice/django-super-deduper',
     long_description=long_description,
-    version='0.0.7',
     classifiers=[
         'Framework :: Django :: 1.11',
         'License :: OSI Approved :: MIT License',
