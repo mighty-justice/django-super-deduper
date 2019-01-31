@@ -147,3 +147,40 @@ class MergedModelInstanceTest(object):
 
         with pytest.raises(ValueError):
             MergedModelInstance.create(primary_object, [alias_object])
+
+    def test_o2o_merge_with_audit_trail(self):
+        primary_object = RestaurantFactory.create(place=None, serves_hot_dogs=True, serves_pizza=False)
+        alias_objects = RestaurantFactory.create_batch(3)
+        related_object = set([alias_objects[0].place])
+
+        _, audit_trail = MergedModelInstance.create_with_audit_trail(primary_object, alias_objects)
+
+        assert set(audit_trail) == related_object
+
+    def test_o2m_merge_with_audit_trail(self):
+        primary_object = NewsAgencyFactory.create()
+        alias_object = NewsAgencyFactory.create()
+        related_objects = set(ReporterFactory.create_batch(3, news_agency=alias_object))
+
+        _, audit_trail = MergedModelInstance.create_with_audit_trail(primary_object, [alias_object])
+
+        assert set(audit_trail) == related_objects
+
+    def test_m2m_merge_with_audit_trail(self):
+        primary_object = ArticleFactory.create(reporter=None)
+        related_object = ReporterFactory.create()
+        alias_object = ArticleFactory.create(number_of_publications=3, reporter=related_object)
+        related_objects = set(alias_object.publications.all())
+
+        _, audit_trail = MergedModelInstance.create_with_audit_trail(primary_object, [alias_object])
+
+        assert set(audit_trail) == related_objects
+
+    def test_reverse_m2m_merge_with_audit_trail(self):
+        primary_object = PublicationFactory.create()
+        alias_object = PublicationFactory.create(number_of_articles=3)
+        related_objects = set(alias_object.article_set.all())
+
+        _, audit_trail = MergedModelInstance.create_with_audit_trail(primary_object, [alias_object])
+
+        assert set(audit_trail) == related_objects
