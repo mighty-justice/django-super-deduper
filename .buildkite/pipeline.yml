@@ -6,8 +6,8 @@ steps:
     agents:
       queue: builders
     plugins:
-      docker-compose#v1.6.0:
-        build: django_super_deduper
+      docker-compose#v3.0.2:
+        build: django-super-deduper
         config:
           - docker-compose.yml
         image-repository: "$BUILDKITE_PLUGIN_DOCKER_COMPOSE_IMAGE_REPOSITORY"
@@ -20,32 +20,32 @@ steps:
     agents:
       queue: pytest
     plugins:
-      docker-compose#v1.6.0:
-        run: app
+      docker-compose#v3.0.2:
+        run: django-super-deduper
         config:
           - docker-compose.yml
 
   - name: "mypy"
     command: mypy django_super_deduper/
     plugins:
-      docker-compose#v1.6.0:
-        run: app
+      docker-compose#v3.0.2:
+        run: django-super-deduper
         config:
             - docker-compose.yml
 
   - name: "isort"
     command: isort --check-only
     plugins:
-      docker-compose#v1.6.0:
-        run: app
+      docker-compose#v3.0.2:
+        run: django-super-deduper
         config:
           - docker-compose.yml
 
   - name: "flake8"
     command: flake8
     plugins:
-      docker-compose#v1.6.0:
-        run: app
+      docker-compose#v3.0.2:
+        run: django-super-deduper
         config:
           - docker-compose.yml
 
