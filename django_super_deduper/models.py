@@ -10,7 +10,7 @@ class ModelMeta(object):
 
     @staticmethod
     def is_related_field(field: Field):
-        return field.one_to_many or field.one_to_one or field.many_to_many and field.related_model._meta.managed
+        return (field.one_to_many or field.one_to_one or field.many_to_many) and field.related_model._meta.managed
 
     @property
     def related_fields(self) -> List[Field]:

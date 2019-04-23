@@ -1,6 +1,7 @@
 import pytest
 
 from django_super_deduper.merge import MergedModelInstance
+from django_super_deduper.models import ModelMeta
 from tests.factories import (
     ArticleFactory,
     EarningsReportFactory,
@@ -184,3 +185,15 @@ class MergedModelInstanceTest(object):
         _, audit_trail = MergedModelInstance.create_with_audit_trail(primary_object, [alias_object])
 
         assert set(audit_trail) == related_objects
+
+
+@pytest.mark.django_db
+class ModelMetaTest(object):
+
+    def test_unmanaged_related_fields(self):
+        instance = RestaurantFactory()
+
+        model_meta = ModelMeta(instance)
+
+        for field in model_meta.related_fields:
+            assert field.related_model._meta.managed

@@ -45,6 +45,13 @@ class EarningsReport(models.Model):
         return f'{self.restaurant}, {self.date}: {self.amount}'
 
 
+class MaterializedReport(models.Model):
+    restaurant = models.ForeignKey(Restaurant, on_delete=models.DO_NOTHING)
+
+    class Meta:
+        managed = False
+
+
 class NewsAgency(Place):
     website = models.CharField(max_length=50, null=True)
 
