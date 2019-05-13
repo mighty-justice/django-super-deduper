@@ -71,7 +71,9 @@ class MergedModelInstance(object):
                     obj.save()
                 else:
                     logger.debug(f'Deleting {obj._meta.model.__name__}[pk={obj.pk}]')
+                    _pk = obj.pk
                     obj.delete()
+                    obj.pk = _pk  # pk is cached and re-assigned to keep the audit trail in tact
             self.modified_related_objects.append(obj)
 
     def _handle_m2m_related_field(self, related_field: Field, alias_object: Model):
