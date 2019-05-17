@@ -62,6 +62,19 @@ class MergedModelInstanceTest(object):
         assert not merged_object.place
         assert merged_object.serves_hot_dogs and not merged_object.serves_pizza
 
+    def test_recursive_o2o_merge(self):
+        primary_object = WaiterFactory().restaurant.place
+        alias_object = WaiterFactory().restaurant.place
+
+        merged_object = MergedModelInstance.create(
+            primary_object,
+            [alias_object],
+            merge_field_values=True,
+            recursive=True,
+        )
+
+        assert merged_object.restaurant.waiter_set.count() == 2
+
     def test_merge_model_with_o2m_relationship(self):
         primary_object = NewsAgencyFactory.create()
         alias_object = NewsAgencyFactory.create()

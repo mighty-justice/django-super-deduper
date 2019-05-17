@@ -13,10 +13,11 @@ logger.addHandler(logging.NullHandler())
 
 class MergedModelInstance(object):
 
-    def __init__(self, primary_object: Model, keep_old=True, merge_field_values=True) -> None:
+    def __init__(self, primary_object: Model, keep_old=True, merge_field_values=True, recursive=False) -> None:
         self.primary_object = primary_object
         self.keep_old = keep_old
         self.merge_field_values = merge_field_values
+        self.recursive = recursive
         self.model_meta = ModelMeta(primary_object)
         self.modified_related_objects = []  # type: List
 
@@ -27,8 +28,14 @@ class MergedModelInstance(object):
         alias_objects: List[Model],
         keep_old=True,
         merge_field_values=True,
+        recursive=False,
     ) -> 'MergedModelInstance':
-        merged_model_instance = cls(primary_object, keep_old=keep_old, merge_field_values=merge_field_values)
+        merged_model_instance = cls(
+            primary_object,
+            keep_old=keep_old,
+            merge_field_values=merge_field_values,
+            recursive=recursive
+        )
 
         logger.debug(f'Primary object {merged_model_instance.model_meta.model_name}[pk={primary_object.pk}] '
                      f'will be merged with {len(alias_objects)} alias object(s)')
@@ -49,7 +56,7 @@ class MergedModelInstance(object):
         instance = cls._create(*args, **kwargs)
         return instance.primary_object, instance.modified_related_objects
 
-    def _handle_o2m_related_field(self, related_field: Field, alias_object: Model):
+    def _handle_o2m_related_field(self, related_field: Field, alias_object: Model):  # noqa: C901
         reverse_o2m_accessor_name = related_field.get_accessor_name()
         o2m_accessor_name = related_field.field.name
 
@@ -106,8 +113,17 @@ class MergedModelInstance(object):
                          f'to {alias_o2o_object._meta.model.__name__}[pk={alias_o2o_object.pk}')
             setattr(self.primary_object, o2o_accessor_name, alias_o2o_object)
             self.modified_related_objects.append(alias_o2o_object)
+        elif primary_o2o_object is not None and alias_o2o_object is not None and self.recursive:
+            _, audit_trail = MergedModelInstance.create_with_audit_trail(
+                primary_object=primary_o2o_object,
+                alias_objects=[alias_o2o_object],
+                keep_old=self.keep_old,
+                merge_field_values=self.merge_field_values,
+                recursive=self.recursive,
+            )
+            self.modified_related_objects.extend(audit_trail)
 
-    def merge(self, alias_object: Model):
+    def merge(self, alias_object: Model):  # noqa: C901
         primary_object = self.primary_object
 
         if not isinstance(alias_object, primary_object.__class__):
