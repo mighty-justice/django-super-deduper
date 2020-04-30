@@ -13,10 +13,17 @@ logger.addHandler(logging.NullHandler())
 
 class MergedModelInstance(object):
 
-    def __init__(self, primary_object: Model, keep_old=True, merge_field_values=True) -> None:
+    def __init__(
+        self,
+        primary_object: Model,
+        keep_old=True,
+        merge_field_values=True,
+        raise_validation_exception=False,
+    ) -> None:
         self.primary_object = primary_object
         self.keep_old = keep_old
         self.merge_field_values = merge_field_values
+        self.raise_validation_exception = raise_validation_exception
         self.model_meta = ModelMeta(primary_object)
         self.modified_related_objects = []  # type: List
 
@@ -25,10 +32,9 @@ class MergedModelInstance(object):
         cls,
         primary_object: Model,
         alias_objects: List[Model],
-        keep_old=True,
-        merge_field_values=True,
+        **kwargs,
     ) -> 'MergedModelInstance':
-        merged_model_instance = cls(primary_object, keep_old=keep_old, merge_field_values=merge_field_values)
+        merged_model_instance = cls(primary_object, **kwargs)
 
         logger.debug(f'Primary object {merged_model_instance.model_meta.model_name}[pk={primary_object.pk}] '
                      f'will be merged with {len(alias_objects)} alias object(s)')
@@ -64,6 +70,10 @@ class MergedModelInstance(object):
                 logger.debug('success.')
             except ValidationError as e:
                 logger.debug(f'failed. {e}')
+
+                if self.raise_validation_exception:
+                    raise
+
                 if related_field.field.null:
                     logger.debug(f'Setting o2m field {o2m_accessor_name} on '
                                  f'{obj._meta.model.__name__}[pk={obj.pk}] to `None`')

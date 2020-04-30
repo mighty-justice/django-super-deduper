@@ -1,3 +1,5 @@
+from django.core.exceptions import ValidationError
+
 import pytest
 
 from django_super_deduper.merge import MergedModelInstance
@@ -99,6 +101,14 @@ class MergedModelInstanceTest(object):
 
         with pytest.raises(EarningsReportFactory._meta.model.DoesNotExist):
             other_report.refresh_from_db()
+
+    def test_merge_model_with_o2m_relationship_and_raise_unique_validation(self):
+        primary_object, alias_object = RestaurantFactory.create_batch(2)
+        report = EarningsReportFactory(restaurant=primary_object)
+        EarningsReportFactory(date=report.date, restaurant=alias_object)
+
+        with pytest.raises(ValidationError):
+            MergedModelInstance.create(primary_object, [alias_object], raise_validation_exception=True)
 
     def test_merge_model_with_m2m_relationship(self):
         primary_object = ArticleFactory.create(reporter=None)
