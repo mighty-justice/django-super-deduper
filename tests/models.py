@@ -1,3 +1,5 @@
+from django.contrib.contenttypes.fields import GenericForeignKey, GenericRelation
+from django.contrib.contenttypes.models import ContentType
 from django.db import models
 
 
@@ -19,7 +21,7 @@ class Restaurant(models.Model):
     serves_pizza = models.BooleanField(default=False)
 
     def __str__(self):
-        return f'{self.place}'
+        return self.place
 
 
 class Waiter(models.Model):
@@ -27,7 +29,7 @@ class Waiter(models.Model):
     restaurant = models.ForeignKey(Restaurant, null=True, on_delete=models.SET_NULL)
 
     def __str__(self):
-        return f'{self.name}'
+        return self.name
 
     class Meta:
         unique_together = ('name', 'restaurant', )
@@ -81,6 +83,17 @@ class Article(models.Model):
     pub_date = models.DateField(auto_now_add=True)
     publications = models.ManyToManyField(Publication)
     reporter = models.ForeignKey(Reporter, on_delete=models.CASCADE, null=True)
+    tags = GenericRelation('TaggedItem')
 
     def __str__(self):
-        return f'{self.headline}'
+        return self.headline
+
+
+class TaggedItem(models.Model):
+    tag = models.SlugField()
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE)
+    object_id = models.PositiveIntegerField()
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    def __str__(self):
+        return self.tag

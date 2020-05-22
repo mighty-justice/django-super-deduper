@@ -10,6 +10,7 @@ def pytest_configure():
             }
         },
         INSTALLED_APPS=(
+            'django.contrib.contenttypes',
             'tests',
         ),
         LOGGING={
