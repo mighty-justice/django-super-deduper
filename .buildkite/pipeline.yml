@@ -15,7 +15,7 @@ steps:
   - wait
 
   - name: "pytest"
-    command: pytest --cov=./ --cov-report=xml:coverage.xml
+    command: pytest --cov=./django_super_deduper --cov-report=xml:coverage.xml
     artifact_paths: "coverage.xml"
     agents:
       queue: pytest
