@@ -58,3 +58,14 @@ LOGGING = {
 
 - https://djangosnippets.org/snippets/2283/
 - https://stackoverflow.com/questions/3393378/django-merging-objects
+
+## Releasing
+Pre-reqs:
+```sh
+pip install pypandoc twine
+brew install pandoc
+```
+
+1. Draft a new release and create new tag in Github
+2. Run `python setup.py sdist bdist_wheel` on `master`
+3. Upload to pypi `python -m twine upload dist/*`
