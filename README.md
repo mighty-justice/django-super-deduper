@@ -67,5 +67,5 @@ brew install pandoc
 ```
 
 1. Draft a new release and create new tag in Github
-2. Run `python setup.py sdist bdist_wheel` on `master`
+2. Run `python3 setup.py sdist bdist_wheel` on `master`
 3. Upload to pypi `python -m twine upload dist/*`
