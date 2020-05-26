@@ -1,6 +1,7 @@
 import logging
 from typing import List, Tuple
 
+from django.contrib.contenttypes.fields import GenericRelation
 from django.core.exceptions import ValidationError
 from django.core.serializers import serialize
 from django.db.models import Field, Model
@@ -56,8 +57,15 @@ class MergedModelInstance(object):
         return instance.primary_object, instance.modified_related_objects
 
     def _handle_o2m_related_field(self, related_field: Field, alias_object: Model):
-        reverse_o2m_accessor_name = related_field.get_accessor_name()
-        o2m_accessor_name = related_field.field.name
+        if isinstance(related_field, GenericRelation):
+            fields = related_field.remote_field.model._meta.private_fields
+            matching_field = [f for f in fields if related_field._is_matching_generic_foreign_key(f)][0]
+
+            reverse_o2m_accessor_name = related_field.get_attname()
+            o2m_accessor_name = matching_field.name
+        else:
+            reverse_o2m_accessor_name = related_field.get_accessor_name()
+            o2m_accessor_name = related_field.field.name
 
         for obj in getattr(alias_object, reverse_o2m_accessor_name).all():
             try:

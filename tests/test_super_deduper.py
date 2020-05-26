@@ -196,6 +196,16 @@ class MergedModelInstanceTest(object):
 
         assert set(audit_trail) == related_objects
 
+    def test_merge_generic_foreign_keys(self):
+        primary_object = ArticleFactory()
+        alias_object = ArticleFactory()
+        primary_object.tags.create(content_object=primary_object, tag='django')
+        alias_object.tags.create(content_object=alias_object, tag='python')
+
+        merged_object = MergedModelInstance.create(primary_object, [alias_object], keep_old=False)
+
+        assert merged_object.tags.count() == 2
+
 
 @pytest.mark.django_db
 class ModelMetaTest(object):
