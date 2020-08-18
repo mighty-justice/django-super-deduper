@@ -48,10 +48,3 @@ steps:
         run: django-super-deduper
         config:
           - docker-compose.yml
-
-  - wait
-
-  - name: "coverage"
-    command:
-      - "buildkite-agent artifact download coverage.xml ."
-      - "bash <(curl -s https://codecov.io/bash) -Z -c"
