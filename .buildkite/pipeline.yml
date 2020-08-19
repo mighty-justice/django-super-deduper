@@ -15,8 +15,9 @@ steps:
   - wait
 
   - name: "pytest"
-    command: pytest --cov=./django_super_deduper --cov-report=xml:coverage.xml
-    artifact_paths: "coverage.xml"
+    command:
+      - pytest --cov=./django_super_deduper
+      - coveralls
     agents:
       queue: pytest
     plugins:
@@ -24,6 +25,7 @@ steps:
         run: django-super-deduper
         config:
           - docker-compose.yml
+          - docker-compose.ci.yml
 
   - name: "mypy"
     command: mypy django_super_deduper/
@@ -48,10 +50,3 @@ steps:
         run: django-super-deduper
         config:
           - docker-compose.yml
-
-  - wait
-
-  - name: "coverage"
-    command:
-      - "buildkite-agent artifact download coverage.xml ."
-      - "bash <(curl -s https://codecov.io/bash) -Z -c"
