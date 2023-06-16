@@ -1,10 +1,11 @@
 env:
   REVISION: "$BUILDKITE_COMMIT"
+  ECR_URL: "765337109446.dkr.ecr.us-east-1.amazonaws.com/registry-client"
 
 steps:
   - name: ":docker: build django_super_deduper"
     agents:
-      queue: builders
+      queue: new-builders  #FIXME
     plugins:
       docker-compose#v3.0.2:
         build: django-super-deduper
@@ -19,7 +20,7 @@ steps:
       - pytest --cov=./django_super_deduper
       - coveralls
     agents:
-      queue: pytest
+      queue: new-pytest  #FIXME
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
@@ -29,6 +30,8 @@ steps:
 
   - name: "mypy"
     command: mypy django_super_deduper/
+    agents:
+      queue: new-default  #FIXME
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
@@ -37,6 +40,8 @@ steps:
 
   - name: "isort"
     command: isort --check-only
+    agents:
+      queue: new-default  #FIXME
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
@@ -45,6 +50,8 @@ steps:
 
   - name: "flake8"
     command: flake8
+    agents:
+      queue: new-default  #FIXME
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
