@@ -18,7 +18,7 @@ steps:
   - name: "pytest"
     command:
       - pytest --cov=./django_super_deduper
-      - coveralls
+      # - coveralls
     agents:
       queue: new-pytest  #FIXME
     plugins:
