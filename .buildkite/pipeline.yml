@@ -1,6 +1,5 @@
 env:
   REVISION: "$BUILDKITE_COMMIT"
-  ECR_URL: "765337109446.dkr.ecr.us-east-1.amazonaws.com/registry-client"
 
 steps:
   - name: ":docker: build django_super_deduper"
