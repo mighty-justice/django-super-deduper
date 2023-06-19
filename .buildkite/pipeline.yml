@@ -17,8 +17,8 @@ steps:
 
   - name: "pytest"
     command:
-      - pytest --cov=./django_super_deduper
-      # - coveralls
+      # - pytest --cov=./django_super_deduper
+      - pytest
     agents:
       queue: new-pytest  #FIXME
     plugins:
@@ -26,7 +26,7 @@ steps:
         run: django-super-deduper
         config:
           - docker-compose.yml
-          - docker-compose.ci.yml
+          # - docker-compose.ci.yml
 
   - name: "mypy"
     command: mypy django_super_deduper/
