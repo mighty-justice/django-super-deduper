@@ -4,7 +4,7 @@ env:
 steps:
   - name: ":docker: build django_super_deduper"
     agents:
-      queue: new-builders  #FIXME
+      queue: builders
     plugins:
       docker-compose#v3.0.2:
         build: django-super-deduper
@@ -18,7 +18,7 @@ steps:
     command:
       - pytest
     agents:
-      queue: new-pytest  #FIXME
+      queue: pytest
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
@@ -28,7 +28,7 @@ steps:
   - name: "mypy"
     command: mypy django_super_deduper/
     agents:
-      queue: new-default  #FIXME
+      queue: default
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
@@ -38,7 +38,7 @@ steps:
   - name: "isort"
     command: isort --check-only
     agents:
-      queue: new-default  #FIXME
+      queue: default
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
@@ -48,7 +48,7 @@ steps:
   - name: "flake8"
     command: flake8
     agents:
-      queue: new-default  #FIXME
+      queue: default
     plugins:
       docker-compose#v3.0.2:
         run: django-super-deduper
