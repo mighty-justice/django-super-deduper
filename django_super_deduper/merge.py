@@ -147,20 +147,25 @@ class MergedModelInstance(object):
             elif related_field.many_to_many:
                 self._handle_m2m_related_field(related_field, alias_object)
 
+        primary_field_has_changed = False
         if self.merge_field_values:
             # This step can lead to validation errors if `field` has a `unique or` `unique_together` constraint.
             for field in model_meta.editable_fields:
                 primary_value = getattr(primary_object, field.name)
                 alias_value = getattr(alias_object, field.name)
-
+                if primary_value == alias_value:
+                    continue
+                
                 logger.debug(f'Primary {field.name} has value: {primary_value}, '
                              f'Alias {field.name} has value: {alias_value}')
                 if primary_value in field.empty_values and alias_value not in field.empty_values:
                     logger.debug(f'Setting primary {field.name} to alias value: {alias_value}')
                     setattr(primary_object, field.name, alias_value)
+                    primary_field_has_changed = True
 
         if not self.keep_old:
             logger.debug(f'Deleting alias object {self.model_meta.model_name}[pk={alias_object.pk}]')
             alias_object.delete()
 
-        primary_object.save()
+        if primary_field_has_changed:
+            primary_object.save()
