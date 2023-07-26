@@ -147,6 +147,8 @@ class MergedModelInstance(object):
             elif related_field.many_to_many:
                 self._handle_m2m_related_field(related_field, alias_object)
 
+        primary_object.refresh_from_db()
+
         if self.merge_field_values:
             # This step can lead to validation errors if `field` has a `unique or` `unique_together` constraint.
             for field in model_meta.editable_fields:
