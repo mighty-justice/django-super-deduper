@@ -153,7 +153,7 @@ class MergedModelInstance(object):
             for field in model_meta.editable_fields:
                 primary_value = getattr(primary_object, field.name)
                 alias_value = getattr(alias_object, field.name)
-                
+
                 logger.debug(f'Primary {field.name} has value: {primary_value}, '
                              f'Alias {field.name} has value: {alias_value}')
                 if primary_value in field.empty_values and alias_value not in field.empty_values:
