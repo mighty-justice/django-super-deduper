@@ -84,6 +84,7 @@ class Article(models.Model):
     publications = models.ManyToManyField(Publication)
     reporter = models.ForeignKey(Reporter, on_delete=models.CASCADE, null=True)
     tags = GenericRelation('TaggedItem')
+    notes = GenericRelation('Note')
 
     def __str__(self):
         return self.headline
@@ -95,5 +96,21 @@ class TaggedItem(models.Model):
     object_id = models.PositiveIntegerField()
     content_object = GenericForeignKey('content_type', 'object_id')
 
+    class Meta:
+        unique_together = ('tag', 'content_type', 'object_id', )
+
     def __str__(self):
         return self.tag
+
+
+class Note(models.Model):
+    text = models.CharField(max_length=100)
+    content_type = models.ForeignKey(ContentType, on_delete=models.CASCADE, null=True)
+    object_id = models.PositiveIntegerField(null=True)
+    content_object = GenericForeignKey('content_type', 'object_id')
+
+    class Meta:
+        unique_together = ('text', 'content_type', 'object_id', )
+
+    def __str__(self):
+        return self.text

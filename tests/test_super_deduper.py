@@ -14,6 +14,7 @@ from tests.factories import (
     RestaurantFactory,
     WaiterFactory,
 )
+from tests.models import TaggedItem
 
 
 @pytest.mark.django_db
@@ -205,6 +206,40 @@ class MergedModelInstanceTest(object):
         merged_object = MergedModelInstance.create(primary_object, [alias_object], keep_old=False)
 
         assert merged_object.tags.count() == 2
+
+    def test_merge_generic_foreign_keys_and_unique_validation_delete(self):
+        primary_object = ArticleFactory()
+        alias_object = ArticleFactory()
+        primary_tag = primary_object.tags.create(content_object=primary_object, tag='django')
+        alias_tag = alias_object.tags.create(content_object=alias_object, tag='django')
+
+        merged_object, audit_trail = MergedModelInstance.create_with_audit_trail(primary_object, [alias_object])
+
+        assert list(merged_object.tags.all()) == [primary_tag]
+        assert not TaggedItem.objects.filter(pk=alias_tag.pk).exists()
+        assert audit_trail == [alias_tag]
+
+    def test_merge_generic_foreign_keys_and_unique_validation_set_null(self):
+        primary_object = ArticleFactory()
+        alias_object = ArticleFactory()
+        primary_note = primary_object.notes.create(content_object=primary_object, text='duplicate')
+        alias_note = alias_object.notes.create(content_object=alias_object, text='duplicate')
+
+        merged_object = MergedModelInstance.create(primary_object, [alias_object])
+
+        assert list(merged_object.notes.all()) == [primary_note]
+        alias_note.refresh_from_db()
+        assert alias_note.content_type is None
+        assert alias_note.object_id is None
+
+    def test_merge_generic_foreign_keys_and_raise_unique_validation(self):
+        primary_object = ArticleFactory()
+        alias_object = ArticleFactory()
+        primary_object.tags.create(content_object=primary_object, tag='django')
+        alias_object.tags.create(content_object=alias_object, tag='django')
+
+        with pytest.raises(ValidationError):
+            MergedModelInstance.create(primary_object, [alias_object], raise_validation_exception=True)
 
 
 @pytest.mark.django_db

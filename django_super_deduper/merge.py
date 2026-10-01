@@ -63,9 +63,15 @@ class MergedModelInstance(object):
 
             reverse_o2m_accessor_name = related_field.get_attname()
             o2m_accessor_name = matching_field.name
+            # A GenericForeignKey can only be cleared if both of its underlying columns accept NULL
+            remote_meta = related_field.remote_field.model._meta
+            o2m_field_null = all(
+                remote_meta.get_field(name).null for name in (matching_field.ct_field, matching_field.fk_field)
+            )
         else:
             reverse_o2m_accessor_name = related_field.get_accessor_name()
             o2m_accessor_name = related_field.field.name
+            o2m_field_null = related_field.field.null
 
         for obj in getattr(alias_object, reverse_o2m_accessor_name).all():
             try:
@@ -82,7 +88,7 @@ class MergedModelInstance(object):
                 if self.raise_validation_exception:
                     raise
 
-                if related_field.field.null:
+                if o2m_field_null:
                     logger.debug(f'Setting o2m field {o2m_accessor_name} on '
                                  f'{obj._meta.model.__name__}[pk={obj.pk}] to `None`')
                     setattr(obj, o2m_accessor_name, None)
